@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Http\Request;
@@ -28,6 +29,14 @@ Route::prefix('auth')->group(function () {
 Route::prefix('employees')->group(function () {
     Route::get('/', [EmployeeController::class, 'index']);
     Route::post('/{employee}/select', [EmployeeController::class, 'select']);
+    // 新增功能：管理員專用
+    Route::get('/available-colors', [EmployeeController::class, 'getAvailableColors']);
+    Route::post('/', [EmployeeController::class, 'store']);
+});
+
+// 部門相關（新增功能）
+Route::prefix('departments')->group(function () {
+    Route::post('/', [DepartmentController::class, 'store']);
 });
 
 // 班表相關
