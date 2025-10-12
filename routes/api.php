@@ -44,5 +44,6 @@ Route::prefix('schedules')->group(function () {
     Route::get('/{year}/{month}', [ScheduleController::class, 'show']);
     Route::post('/records', [ScheduleController::class, 'updateRecord']);
     Route::post('/{schedule}/confirm', [ScheduleController::class, 'confirm']);
+    Route::post('/{schedule}/unconfirm', [ScheduleController::class, 'unconfirm']);
     Route::get('/{year}/{month}/export', [ScheduleController::class, 'export']);
 });

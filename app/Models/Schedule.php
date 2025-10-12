@@ -60,4 +60,16 @@ class Schedule extends Model
             'confirmed_by' => $adminId,
         ]);
     }
+
+    /**
+     * 取消確認班表
+     */
+    public function unconfirm(): void
+    {
+        $this->update([
+            'is_confirmed' => false,
+            'confirmed_at' => null,
+            'confirmed_by' => null,
+        ]);
+    }
 }

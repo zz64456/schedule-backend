@@ -32,6 +32,7 @@ class ActivityLog extends Model
     const ACTION_SCHEDULE_UPDATED = 'schedule_updated';
     const ACTION_ADMIN_LOGIN = 'admin_login';
     const ACTION_SCHEDULE_CONFIRMED = 'schedule_confirmed';
+    const ACTION_SCHEDULE_UNCONFIRMED = 'schedule_unconfirmed';
     const ACTION_SCHEDULE_EXPORTED = 'schedule_exported';
     const ACTION_ADMIN_LOGOUT = 'admin_logout';
 

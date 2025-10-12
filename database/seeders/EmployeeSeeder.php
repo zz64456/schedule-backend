@@ -57,8 +57,11 @@ class EmployeeSeeder extends Seeder
             ],
         ];
 
-        foreach ($employees as $employee) {
-            Employee::create($employee);
+        foreach ($employees as $employeeData) {
+            Employee::firstOrCreate(
+                ['name' => $employeeData['name']],
+                $employeeData
+            );
         }
     }
 }

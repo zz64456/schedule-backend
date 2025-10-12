@@ -15,11 +15,16 @@ class ScheduleRecord extends Model
         'employee_id',
         'day',
         'is_off',
+        'leave_type',
     ];
 
     protected $casts = [
         'is_off' => 'boolean',
     ];
+
+    // 假別常數
+    const LEAVE_TYPE_PERSONAL = 'personal'; // 事假
+    const LEAVE_TYPE_SICK = 'sick';         // 病假
 
     /**
      * 取得班表記錄所屬的班表

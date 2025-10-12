@@ -19,7 +19,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // 支援多個前端來源（用逗號分隔），方便同時支援開發和正式環境
+    // 範例 .env 設定: FRONTEND_URL=https://your-domain.com,http://localhost:5173
+    'allowed_origins' => array_filter(array_map('trim', explode(',', env('FRONTEND_URL', 'http://localhost:5173')))),
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +31,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,  // Enable credentials for session-based auth
 
 ];

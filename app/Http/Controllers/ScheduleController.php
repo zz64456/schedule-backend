@@ -50,6 +50,8 @@ class ScheduleController extends Controller
             'schedule_id' => 'required|exists:schedules,id',
             'employee_id' => 'required|exists:employees,id',
             'day' => 'required|integer|min:1|max:31',
+            'force_action' => 'nullable|in:add,remove',
+            'leave_type' => 'nullable|in:personal,sick',
         ]);
 
         $schedule = Schedule::findOrFail($request->schedule_id);
@@ -72,8 +74,40 @@ class ScheduleController extends Controller
             ['is_off' => false]
         );
 
-        // 切換休假狀態
-        $record->toggleOff();
+        // 處理假別標記
+        if ($request->has('leave_type')) {
+            // 如果格子已有相同的假別，則清空（移除休假+假別）
+            if ($record->is_off && $record->leave_type === $request->leave_type) {
+                $record->is_off = false;
+                $record->leave_type = null;
+            } else {
+                // 設定休假 + 假別（無論原本是否休假）
+                $record->is_off = true;
+                $record->leave_type = $request->leave_type;
+            }
+            $record->save();
+        } else {
+            // 根據 force_action 參數決定操作
+            if ($request->has('force_action')) {
+                // 拖曳模式：強制設定狀態
+                $wasOff = $record->is_off;
+                $record->is_off = ($request->force_action === 'add');
+
+                // 如果從休假變成非休假，清除假別
+                if ($wasOff && !$record->is_off) {
+                    $record->leave_type = null;
+                }
+
+                $record->save();
+            } else {
+                // 點擊模式：切換休假狀態
+                if ($record->is_off) {
+                    // 如果要取消休假，也清除假別
+                    $record->leave_type = null;
+                }
+                $record->toggleOff();
+            }
+        }
 
         // 記錄操作日誌
         $adminId = Session::get('admin_id');
@@ -134,6 +168,49 @@ class ScheduleController extends Controller
         return response()->json([
             'success' => true,
             'message' => '班表已確認',
+            'schedule' => $schedule,
+        ]);
+    }
+
+    /**
+     * 取消確認班表（管理員專用）
+     */
+    public function unconfirm(Request $request, Schedule $schedule): JsonResponse
+    {
+        $adminId = Session::get('admin_id');
+
+        if (!$adminId) {
+            return response()->json([
+                'success' => false,
+                'message' => '需要管理員權限',
+            ], 403);
+        }
+
+        if (!$schedule->is_confirmed) {
+            return response()->json([
+                'success' => false,
+                'message' => '班表尚未確認，無需取消',
+            ], 400);
+        }
+
+        $schedule->unconfirm();
+
+        // 記錄操作日誌
+        ActivityLog::record(
+            ActivityLog::ACTION_SCHEDULE_UNCONFIRMED,
+            ActivityLog::USER_TYPE_ADMIN,
+            $adminId,
+            null,
+            $schedule->id,
+            [
+                'year' => $schedule->year,
+                'month' => $schedule->month,
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => '班表確認已取消',
             'schedule' => $schedule,
         ]);
     }
