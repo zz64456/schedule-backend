@@ -41,4 +41,38 @@ class DepartmentController extends Controller
             'department' => $department,
         ]);
     }
+
+    /**
+     * 刪除部門
+     */
+    public function destroy(Department $department): JsonResponse
+    {
+        // 檢查部門下是否還有啟用的員工
+        $activeEmployeesCount = $department->employees()->where('is_active', true)->count();
+
+        if ($activeEmployeesCount > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => "此部門下還有 {$activeEmployeesCount} 位員工，無法刪除。請先刪除或轉移員工。",
+            ], 400);
+        }
+
+        // 記錄操作日誌
+        ActivityLog::record(
+            'department_deleted',
+            ActivityLog::USER_TYPE_ADMIN,
+            session('admin_id'),
+            null,
+            null,
+            ['department_name' => $department->name]
+        );
+
+        // 硬刪除部門
+        $department->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => '部門已刪除',
+        ]);
+    }
 }

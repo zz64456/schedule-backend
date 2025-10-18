@@ -32,11 +32,13 @@ Route::prefix('employees')->group(function () {
     // 新增功能：管理員專用
     Route::get('/available-colors', [EmployeeController::class, 'getAvailableColors']);
     Route::post('/', [EmployeeController::class, 'store']);
+    Route::delete('/{employee}', [EmployeeController::class, 'destroy']);
 });
 
 // 部門相關（新增功能）
 Route::prefix('departments')->group(function () {
     Route::post('/', [DepartmentController::class, 'store']);
+    Route::delete('/{department}', [DepartmentController::class, 'destroy']);
 });
 
 // 班表相關

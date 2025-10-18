@@ -117,4 +117,29 @@ class EmployeeController extends Controller
             'employee' => $employee->load('department'),
         ]);
     }
+
+    /**
+     * 刪除員工（軟刪除）
+     */
+    public function destroy(Employee $employee): JsonResponse
+    {
+        // 軟刪除：將 is_active 設為 false
+        $employee->is_active = false;
+        $employee->save();
+
+        // 記錄操作日誌
+        ActivityLog::record(
+            'employee_deleted',
+            ActivityLog::USER_TYPE_ADMIN,
+            session('admin_id'),
+            $employee->id,
+            null,
+            ['employee_name' => $employee->name]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => '員工已刪除',
+        ]);
+    }
 }
