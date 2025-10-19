@@ -51,7 +51,7 @@ class ScheduleController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'day' => 'required|integer|min:1|max:31',
             'force_action' => 'nullable|in:add,remove',
-            'leave_type' => 'nullable|in:personal,sick',
+            'leave_type' => 'nullable|in:personal,sick,hourly',
         ]);
 
         $schedule = Schedule::findOrFail($request->schedule_id);
